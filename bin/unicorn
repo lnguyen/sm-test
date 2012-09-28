@@ -1,0 +1,20 @@
+#!/bin/sh
+
+log "Testing unicorn running"
+
+typeset unicorn_master unicorn_count config config_count
+
+unicorn_master=$(ps uax | grep -c '[u]nicorn master')
+if [ $unicorn_master = '0' ]
+then
+  log error "Error unicorn is not running"
+fi
+
+config=$(ps -eo "%a" | grep "[u]nicorn master" | awk '{ print $6}')
+config_count=$(grep "worker_processes [0-9]" $config | awk '{print $2}')
+unicorn_count=$(ps uax | grep -c '[u]nicorn worker')
+
+if [ $unicorn_count != $config_count ]
+then
+  log error "Worker count is not same as in config"
+fi
